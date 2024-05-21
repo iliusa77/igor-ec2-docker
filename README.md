@@ -4,7 +4,13 @@ ssh-keygen -t rsa -b 4096 -f ./ec2-docker-ssh-key
 chmod 400 ec2-docker-ssh-key
 ```
 
-Define SSH public key (ec2-docker-ssh-key.pub) in `vars.tf` public_key 
+### Update Terraform variables
+Define you own values in `vars.tf`
+- put ec2-docker-ssh-key.pub in public_key
+- project
+- region
+
+and so on ...
 
 ### Terraform init/plan/apply
 ```
