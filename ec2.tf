@@ -3,13 +3,19 @@ resource "aws_key_pair" "deployer" {
   public_key = var.public_key
 }
 
+resource "aws_iam_instance_profile" "profile" {
+  name = "server-docker-compose-instance-profile"
+  role = aws_iam_role.role.name
+}
+
 resource "aws_instance" "server" {
-  ami                     = var.ami #Ubuntu 20.04
-  instance_type           = var.instance_type
-  key_name                = "deployer-key"
-  subnet_id               = module.vpc.public_subnets[0]
-  vpc_security_group_ids = ["${module.vpc.default_security_group_id}"]
+  ami                         = var.ami #Ubuntu 20.04
+  instance_type               = var.instance_type
+  key_name                    = "deployer-key"
+  subnet_id                   = module.vpc.public_subnets[0]
+  vpc_security_group_ids      = ["${module.vpc.default_security_group_id}"]
   associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.profile.name
 
   root_block_device {
     delete_on_termination = true
