@@ -4,3 +4,5 @@ terraform.tfstate
 terraform.tfstate.backup
 kubeconfig*
 ec2-docker-ssh-key*
+.vagrant
+Vagrantfile

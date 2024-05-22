@@ -38,6 +38,12 @@ cd /home/ubuntu
 docker-compose ps
 ```
 
+### Connect to Nginx and Mysql docker containers
+```
+curl http://<instance_ip_addr>:80
+telnet <instance_ip_addr> 3306
+```
+
 ### Terraform cleanup
 ```
 terraform destroy -auto-approve

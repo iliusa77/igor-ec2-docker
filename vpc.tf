@@ -39,7 +39,7 @@ resource "aws_security_group_rule" "ssh" {
   ] 
 }
 
-resource "aws_security_group_rule" "service_port" {
+resource "aws_security_group_rule" "nginx_port" {
   security_group_id = "${ module.vpc.default_security_group_id }"
   type              = "ingress"
   from_port         = 80
@@ -47,6 +47,20 @@ resource "aws_security_group_rule" "service_port" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Nginx docker service allow"
+
+  depends_on = [
+    module.vpc
+  ] 
+}
+
+resource "aws_security_group_rule" "mysql_port" {
+  security_group_id = "${ module.vpc.default_security_group_id }"
+  type              = "ingress"
+  from_port         = 3306
+  to_port           = 3306
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Mysql docker service allow"
 
   depends_on = [
     module.vpc
