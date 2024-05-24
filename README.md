@@ -1,4 +1,4 @@
-This demo repository was created for DevOps provides deploy the following AWS resources with Terraform:
+This demo repository provides deploy the following AWS resources with Terraform:
 - VPC (include Subnets, Route Tables, NAT & Intrenet Gateways, Security Group)
 - EC2 instance
 - ECR repository 
@@ -49,6 +49,8 @@ docker images
 REPOSITORY                                                            TAG        IMAGE ID       CREATED          SIZE
 <aws_account_id>.dkr.ecr.eu-west-2.amazonaws.com/hello-world-python   latest     b773e1d75a97   20 minutes ago   67MB
 python                                                                3-alpine   ee0f568dec6d   43 hours ago     51.7MB
+php                                                                   8.2-fpm    2cc7a580ec9a   9 days ago       494MB
+mysql                                                                 latest     e9387c13ed83   3 weeks ago      578MB
 ```
 
 ### Docker push image to ECR repository (manually, optional)
@@ -57,7 +59,7 @@ aws ecr get-login-password --region eu-west-2 | docker login --username AWS --pa
 docker push <aws_account_id>.dkr.ecr.eu-west-2.amazonaws.com/hello-world-python
 ```
 
-### Connect to Nginx and Mysql docker containers
+### Connect to Python and Mysql docker containers
 ```
 curl http://<instance_ip_addr>:8080
 telnet <instance_ip_addr> 3306
