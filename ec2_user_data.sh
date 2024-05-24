@@ -2,21 +2,28 @@
 
 # Docker and compose installation
 apt update
-apt install -y net-tools curl docker.io haproxy
+apt install -y net-tools curl docker.io haproxy git awscli
 usermod -aG docker ubuntu
 curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
+# Get code & Docker  build/login/push
+git clone https://github.com/datawire/hello-world-python.git
+cd hello-world-python
+docker build -t ${hello_world_python_ecr_repo}:latest .
+aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${hello_world_python_ecr_repo}
+docker push ${hello_world_python_ecr_repo}
+
 # Docker compose file creation
 touch /home/ubuntu/docker-compose.yml
-bash -c 'cat << EOF > /home/ubuntu/docker-compose.yml
+cat << EOF > /home/ubuntu/docker-compose.yml
 version: "3.9"
 
 services:
-  web:
-    image: nginx:latest
+  hello-world-python:
+    image: ${hello_world_python_ecr_repo}:latest
     ports:
-     - 80
+     - 8080
     networks:
       default:
         ipv4_address: 172.20.1.1
@@ -43,7 +50,7 @@ networks:
   default:
     external:
       name: develop     
-EOF'
+EOF
 
 # External docker network creation
 docker network create develop --subnet=172.20.0.0/16
@@ -85,17 +92,17 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-  frontend http_frontend
-    bind *:80
-    use_backend nginx
+  frontend hello-world-python_frontend
+    bind *:8080
+    use_backend hello-world-python
 
   frontend mysql_frontend
     mode tcp
     bind *:3306
     use_backend mysql
 
-  backend nginx
-    server nginx 172.20.1.1:80 check
+  backend hello-world-python
+    server hello-world-python 172.20.1.1:8080 check
 
   backend mysql
     server mysql 172.20.1.3:3306 check

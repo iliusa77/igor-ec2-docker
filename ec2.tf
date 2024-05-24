@@ -16,7 +16,10 @@ resource "aws_instance" "server" {
   vpc_security_group_ids      = ["${module.vpc.default_security_group_id}"]
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.profile.name
-  user_data                   = templatefile("./ec2_user_data.sh", {})
+  user_data                   = templatefile("./ec2_user_data.sh", {
+    hello_world_python_ecr_repo = "${module.ecr.repository_url}"
+    region                      = "${var.region}",
+  })
 
   root_block_device {
     delete_on_termination = true

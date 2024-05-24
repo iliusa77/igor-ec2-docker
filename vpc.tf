@@ -42,11 +42,11 @@ resource "aws_security_group_rule" "ssh" {
 resource "aws_security_group_rule" "nginx_port" {
   security_group_id = "${ module.vpc.default_security_group_id }"
   type              = "ingress"
-  from_port         = 80
-  to_port           = 80
+  from_port         = 8080
+  to_port           = 8080
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Nginx docker service allow"
+  description       = "hello-world-python docker service allow"
 
   depends_on = [
     module.vpc
