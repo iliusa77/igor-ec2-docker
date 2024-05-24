@@ -40,9 +40,10 @@ resource "aws_iam_policy_attachment" "attach" {
 }
 
 module "ecr" {
+  count  = length(var.ecr_repos_list)
   source = "terraform-aws-modules/ecr/aws"
 
-  repository_name = "hello-world-python"
+  repository_name = var.ecr_repos_list[count.index].name
 
   repository_read_write_access_arns = ["${aws_iam_role.role.arn}"]
   repository_lifecycle_policy = jsonencode({

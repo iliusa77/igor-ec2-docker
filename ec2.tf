@@ -17,7 +17,9 @@ resource "aws_instance" "server" {
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.profile.name
   user_data                   = templatefile("./ec2_user_data.sh", {
-    hello_world_python_ecr_repo = "${module.ecr.repository_url}"
+    hello_world_python_ecr_repo = "${module.ecr[0].repository_url}"
+    frontend1_ecr_repo = "${module.ecr[1].repository_url}"
+    backend1_ecr_repo = "${module.ecr[2].repository_url}"
     region                      = "${var.region}",
   })
 

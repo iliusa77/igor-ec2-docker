@@ -14,6 +14,14 @@ docker build -t ${hello_world_python_ecr_repo}:latest .
 aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${hello_world_python_ecr_repo}
 docker push ${hello_world_python_ecr_repo}
 
+docker build -t ${frontend1_ecr_repo}:latest .
+aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${frontend1_ecr_repo}
+docker push ${frontend1_ecr_repo}
+
+docker build -t ${backend1_ecr_repo}:latest .
+aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${backend1_ecr_repo}
+docker push ${backend1_ecr_repo}
+
 # Docker compose file creation
 touch /home/ubuntu/docker-compose.yml
 cat << EOF > /home/ubuntu/docker-compose.yml
@@ -28,11 +36,17 @@ services:
       default:
         ipv4_address: 172.20.1.1
 
-  php-fpm:
-    image: php:8.2-fpm
+  frontend1:
+    image: ${frontend1_ecr_repo}:latest
     networks:
       default:
         ipv4_address: 172.20.1.2
+
+  backend1:
+    image: ${backend1_ecr_repo}:latest
+    networks:
+      default:
+        ipv4_address: 172.20.1.4
 
   db:
     image: mysql:latest

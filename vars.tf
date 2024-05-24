@@ -36,3 +36,18 @@ variable "root_block_iops" {
   default = 3000
 }
 
+variable "ecr_repos_list" {
+  type = list(map(string))
+  default = [
+    {
+      name  = "hello-world-python"
+    },
+    {
+      name  = "frontend1"
+    },
+    {
+      name  = "backend1"
+    },
+  ]
+}
+
