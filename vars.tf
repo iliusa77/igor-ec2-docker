@@ -36,7 +36,5 @@ variable "root_block_iops" {
   default = 3000
 }
 
-variable "gitlab_test_token" {
-  default = "glpat-pcFoLDy4BAaQjqjxoWEz"
-}
+variable "gitlab_test_token" {}
 
