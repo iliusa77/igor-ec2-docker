@@ -7,20 +7,9 @@ usermod -aG docker ubuntu
 curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
-# Get code & Docker  build/login/push
-git clone https://github.com/datawire/hello-world-python.git
-cd hello-world-python
-docker build -t ${hello_world_python_ecr_repo}:latest .
-aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${hello_world_python_ecr_repo}
-docker push ${hello_world_python_ecr_repo}
-
-docker build -t ${frontend1_ecr_repo}:latest .
-aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${frontend1_ecr_repo}
-docker push ${frontend1_ecr_repo}
-
-docker build -t ${backend1_ecr_repo}:latest .
-aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${backend1_ecr_repo}
-docker push ${backend1_ecr_repo}
+# Clone private Gitlab repo
+cd /home/ubuntu
+git clone https://iliusa77:${gitlab_test_token}@gitlab.com/iliusa77/test-repo-for-igor.git
 
 # Docker compose file creation
 touch /home/ubuntu/docker-compose.yml
@@ -28,37 +17,30 @@ cat << EOF > /home/ubuntu/docker-compose.yml
 version: "3.9"
 
 services:
-  hello-world-python:
-    image: ${hello_world_python_ecr_repo}:latest
+  user-mongo:
+    image: mongo:4.4
+    container_name: user-mongo
     ports:
-     - 8080
-    networks:
-      default:
-        ipv4_address: 172.20.1.1
-
-  frontend1:
-    image: ${frontend1_ecr_repo}:latest
+      - "83:27017"
     networks:
       default:
         ipv4_address: 172.20.1.2
 
-  backend1:
-    image: ${backend1_ecr_repo}:latest
+  requests-mongo:
+    image: mongo:4.4
+    container_name: requests-mongo
+    ports:
+      - "82:27017"
+    networks:
+      default:
+        ipv4_address: 172.20.1.3
+
+  connector:
+    image: yenigul/dockernettools:latest
     networks:
       default:
         ipv4_address: 172.20.1.4
 
-  db:
-    image: mysql:latest
-    ports:
-      - 3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=strOnGpAsswOrD@
-      - MYSQL_ALLOW_EMPTY_PASSWORD=strOnGpAsswOrD@
-      - MYSQL_RANDOM_ROOT_PASSWORD=strOnGpAsswOrD@
-    networks:
-      default:
-        ipv4_address: 172.20.1.3
 
 networks:
   default:
@@ -106,20 +88,21 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-  frontend hello-world-python_frontend
-    bind *:8080
-    use_backend hello-world-python
-
-  frontend mysql_frontend
+  frontend user_mongo_frontend
     mode tcp
-    bind *:3306
-    use_backend mysql
+    bind *:27183
+    use_backend user_mongo
 
-  backend hello-world-python
-    server hello-world-python 172.20.1.1:8080 check
+  frontend requests_mongo_frontend
+    mode tcp
+    bind *:27182
+    use_backend requests_mongo
 
-  backend mysql
-    server mysql 172.20.1.3:3306 check
+ backend user_mongo
+      server user_mongo 172.20.1.2:27017 check
+
+  backend requests_mongo
+      server requests_mongo 172.20.1.3:27017 check
 EOF'
 
 # Start docker-compose

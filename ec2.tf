@@ -3,10 +3,10 @@ resource "aws_key_pair" "deployer" {
   public_key = var.public_key
 }
 
-resource "aws_iam_instance_profile" "profile" {
-  name = "server-docker-compose-instance-profile"
-  role = aws_iam_role.role.name
-}
+# resource "aws_iam_instance_profile" "profile" {
+#   name = "server-docker-compose-instance-profile"
+#   role = aws_iam_role.role.name
+# }
 
 resource "aws_instance" "server" {
   ami                         = var.ami
@@ -15,12 +15,10 @@ resource "aws_instance" "server" {
   subnet_id                   = module.vpc.public_subnets[0]
   vpc_security_group_ids      = ["${module.vpc.default_security_group_id}"]
   associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.profile.name
+  #iam_instance_profile        = aws_iam_instance_profile.profile.name
   user_data                   = templatefile("./ec2_user_data.sh", {
-    hello_world_python_ecr_repo = "${module.ecr[0].repository_url}"
-    frontend1_ecr_repo = "${module.ecr[1].repository_url}"
-    backend1_ecr_repo = "${module.ecr[2].repository_url}"
-    region                      = "${var.region}",
+    region                      = "${var.region}"
+    gitlab_test_token           = "${var.gitlab_test_token}" 
   })
 
   root_block_device {
